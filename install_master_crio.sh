@@ -66,7 +66,7 @@ sudo bash -c 'rm -rf /etc/cni/net.d/* || true'
 
 
 ### install packages
-sudo apt-get install -y cri-o cri-o-runc kubelet=${KUBE_VERSION}-00 kubeadm=${KUBE_VERSION}-00 kubectl=${KUBE_VERSION}-00 kubernetes-cni
+sudo DEBIAN_FRONTEND=noninteractive apt-get install -y cri-o cri-o-runc kubelet=${KUBE_VERSION}-00 kubeadm=${KUBE_VERSION}-00 kubectl=${KUBE_VERSION}-00 kubernetes-cni
 sudo apt-mark hold kubelet kubeadm kubectl kubernetes-cni
 
 ### cri-o
