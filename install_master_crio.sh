@@ -87,6 +87,26 @@ net.bridge.bridge-nf-call-ip6tables = 1
 EOF
 sudo sysctl --system
 
+### cilium
+cat <<EOF | sudo tee /etc/modules-load.d/cilium.conf
+cls_bpf
+sch_ingress
+sha1-ssse3
+algif_hash
+xt_set
+ip_set
+ip_set_hash_ip
+EOF
+sudo modprobe cls_bpf
+sudo modprobe sch_ingress
+sudo modprobe sha1-ssse3
+sudo modprobe algif_hash
+sudo modprobe xt_set
+sudo modprobe ip_set
+sudo modprobe ip_set_hash_ip
+# https://github.com/cilium/cilium/pull/20072/commits
+# not in release yet
+echo 'net.ipv4.conf.lxc*.rp_filter = 0' | sudo tee -a /etc/sysctl.d/90-systemd-cilium-override.conf && sudo sysctl --system
 
 ### kubelet should use cri-o
 {
@@ -112,7 +132,7 @@ sudo systemctl start kubelet
 
 ### init k8s
 rm ~/.kube/config || true
-sudo kubeadm init --kubernetes-version=${KUBE_VERSION} --ignore-preflight-errors=NumCPU --skip-token-print --pod-network-cidr=10.142.0.0/16
+sudo kubeadm init --kubernetes-version=${KUBE_VERSION} --ignore-preflight-errors=NumCPU --skip-token-print --pod-network-cidr=10.142.0.0/16 --skip-phases=addon/kube-proxy
 
 mkdir -p ~/.kube
 sudo cp -i /etc/kubernetes/admin.conf /home/$USER/.kube/config
@@ -127,9 +147,9 @@ sudo chmod 600 /home/$USER/.kube/config
 #kubectl -f weave.yaml apply
 #rm weave.yaml
 
-curl -L https://docs.projectcalico.org/manifests/calico.yaml -o calico.yaml
-kubectl -f calico.yaml apply
-rm calico.yaml
+#curl -L https://docs.projectcalico.org/manifests/calico.yaml -o calico.yaml
+#kubectl -f calico.yaml apply
+#rm calico.yaml
 
 
 # etcdctl

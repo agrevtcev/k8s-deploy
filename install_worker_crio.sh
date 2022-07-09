@@ -81,6 +81,26 @@ net.bridge.bridge-nf-call-ip6tables = 1
 EOF
 sudo sysctl --system
 
+### cilium
+cat <<EOF | sudo tee /etc/modules-load.d/cilium.conf
+cls_bpf
+sch_ingress
+sha1-ssse3
+algif_hash
+xt_set
+ip_set
+ip_set_hash_ip
+EOF
+sudo modprobe cls_bpf
+sudo modprobe sch_ingress
+sudo modprobe sha1-ssse3
+sudo modprobe algif_hash
+sudo modprobe xt_set
+sudo modprobe ip_set
+sudo modprobe ip_set_hash_ip
+# https://github.com/cilium/cilium/pull/20072/commits
+# not in release yet
+echo 'net.ipv4.conf.lxc*.rp_filter = 0' | sudo tee -a /etc/sysctl.d/90-systemd-cilium-override.conf && sudo sysctl --system
 
 ### kubelet should use cri-o
 {
