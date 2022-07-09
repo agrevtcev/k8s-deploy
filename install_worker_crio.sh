@@ -83,13 +83,26 @@ sudo sysctl --system
 
 ### cilium
 cat <<EOF | sudo tee /etc/modules-load.d/cilium.conf
+# Base Requirements
+# https://docs.cilium.io/en/stable/operations/system_requirements/#base-requirements
 cls_bpf
 sch_ingress
 sha1-ssse3
 algif_hash
+# Requirements for Iptables-based Masquerading
+# https://docs.cilium.io/en/stable/operations/system_requirements/#requirements-for-iptables-based-masquerading
 xt_set
 ip_set
 ip_set_hash_ip
+# Requirements for the Bandwidth Manager
+# https://docs.cilium.io/en/stable/operations/system_requirements/#requirements-for-the-bandwidth-manager
+sch_fq
+# Requirements for L7 and FQDN Policies
+# https://docs.cilium.io/en/stable/operations/system_requirements/#requirements-for-l7-and-fqdn-policies
+xt_TPROXY
+xt_CT
+xt_mark
+xt_socket
 EOF
 sudo modprobe cls_bpf
 sudo modprobe sch_ingress
@@ -98,6 +111,11 @@ sudo modprobe algif_hash
 sudo modprobe xt_set
 sudo modprobe ip_set
 sudo modprobe ip_set_hash_ip
+sudo modprobe sch_fq
+sudo modprobe xt_TPROXY
+sudo modprobe xt_CT
+sudo modprobe xt_mark
+sudo modprobe xt_socket
 # https://github.com/cilium/cilium/pull/20072/commits
 # not in release yet
 echo 'net.ipv4.conf.lxc*.rp_filter = 0' | sudo tee -a /etc/sysctl.d/90-systemd-cilium-override.conf && sudo sysctl --system
