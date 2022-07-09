@@ -151,6 +151,13 @@ sudo chmod 600 /home/$USER/.kube/config
 #kubectl -f calico.yaml apply
 #rm calico.yaml
 
+# helm
+HELM_VERSION=v3.9.0
+wget https://get.helm.sh/helm-${HELM_VERSION}-linux-amd64.tar.gz
+tar --strip-components 1 -xzf helm-${HELM_VERSION}-linux-amd64.tar.gz linux-amd64/helm
+sudo mv helm /usr/local/bin/
+sudo chown root:root /usr/local/bin/helm
+rm -rf helm-${HELM_VERSION}-linux-amd64.tar.gz
 
 # etcdctl
 ETCDCTL_VERSION=v3.5.1
@@ -168,6 +175,11 @@ tar xzf k9s_Linux_x86_64.tar.gz k9s
 sudo mv k9s /usr/local/bin/
 sudo chown root:root /usr/local/bin/k9s
 rm k9s_Linux_x86_64.tar.gz
+
+### deploy cilium
+helm repo add cilium https://helm.cilium.io/
+helm repo update
+helm install cilium cilium/cilium --version 1.11.6 -n kube-system -f values-cilium.yaml
 
 echo
 echo "### COMMAND TO ADD A WORKER NODE ###"
